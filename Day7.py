@@ -82,12 +82,10 @@ def Part2():
 Grid = GetInput()
 Visited = [[] for _ in range(len(Grid))]
 
-for line in Grid:
-    print(line)
-
 ans = Part1()
 print(ans)
 
 ans = Part2()
 print(ans)
+
 
