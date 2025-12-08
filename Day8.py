@@ -1,12 +1,12 @@
 import os
 
 def GetInput():
-    with open(os.getcwd() + "/input.txt") as file:
+    with open(os.getcwd() + "\\input.txt") as file:
         points = [tuple(map(int, x.strip().split(','))) for x in file.readlines()]
     return points
 
-def Dist(a,b):
-    return (b[0] - a[0])**2 + (b[1] - a[1])**2 + (b[2] - a[2])**2
+def Dist(a, b):
+    return (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2 + (b[2] - a[2]) ** 2
 
 def GetDists(points, n):
     weighted_edges = list()
@@ -37,56 +37,52 @@ def Point(S, n):
         n = S[n]
     return n
 
-def SubGraphs(E, V):
-    P = dict(zip(V, [-1 for _ in range(len(V))]))
+def Calc(E, V):
+    G = dict(zip(V, [i + 1 for i in range(len(V))]))
     E = [x[1] for x in E]
-    S = list()
-    
+
     for e in E:
-        v1 = e[0]
-        v2 = e[1]
-        
-        if P[v1] == -1 and P[v2] == -1:
-            n = len(S)
-            P[v1] = n
-            P[v2] = n
-            S.append(set({v1, v2}))
-            
-        elif P[v1] == -1:
-            S[P[v2]].add(v1)
-            P[v1] = P[v2]
+        if G[e[0]] != G[e[1]]:
+            group = G[e[1]]
+            for v in V:
+                if G[v] == group:
+                    G[v] = G[e[0]]
 
-        elif P[v2] == -1:
-            S[P[v1]].add(v2)
-            P[v2] = P[v1]
+    nums = [0 for _ in range(len(V))]
+    for v in V:
+        nums[G[v] - 1] += 1
 
-        elif P[v1] != P[v2]:
-            S[P[v1]] = S[P[v1]].union(S[P[v2]])
-            for v in S[P[v2]]:
-                P[v] = P[v1]            
-            
-    return S
+    nums.sort()
+    return nums[-1] * nums[-2] * nums[-3]
 
-def Calc(S):
-    nums = set()
-    for x in S:
-        if x is not None:
-            nums.add(len(x))
+def FullyConnect(V, E):
+    G = dict(zip(V, [i + 1 for i in range(len(V))]))
+    E = [x[1] for x in E]
+    i = 0
+    while len(set(G.values())) != 1:
+        e = E[i]
+        group = G[e[1]]
+        for v in V:
+            if G[v] == group:
+                G[v] = G[e[0]]
 
-    total = 1
-    for x in nums:
-        total *= x
-    return total
+        i += 1
+
+    return e[0][0] * e[1][0]
 
 def Part1(V, n):
     E = GetDists(V, n)
-    S = SubGraphs(E, V)
-    return Calc(S)
-    
-                        
+    return Calc(E, V)
+
+def Part2(V):
+    n = (len(V)*(len(V) - 1) / 2) + 2
+    E = GetDists(V, n)
+    return FullyConnect(V, E)
+
 V = GetInput()
 
 ans = Part1(V, 1000)
 print(ans)
 
-
+ans = Part2(V)
+print(ans)
